@@ -47,12 +47,34 @@ func (b *bot) replyMenu(event *linebot.Event, message *linebot.TextMessage) {
 }
 
 func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) {
+	if message.Text == keyword.TypeAll {
+		productslist, err := b.sheetService.GetProducts()
+		if err != nil {
+			log.Println(err)
+		}
+		TypeGroup := []string{keyword.TypeNameA, keyword.TypeNameB, keyword.TypeNameC, keyword.TypeNameD, keyword.TypeNameE}
+		text := "รายการทั้งหมดมีดังนี้\n\n"
+		for i, products := range productslist {
+			head := fmt.Sprintf("รายการ %v มีตามนี้ค้าบ\n", TypeGroup[i])
+			for _, product := range products {
+				prefix := product.GetQtySymbol()
+				text := fmt.Sprintf("%v | %v | %v\n", prefix, product.Code, product.Name)
+				head = head + text
+			}
+			text = text + head + "\n"
+		}
+		fmt.Println(text)
+		if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
+			log.Print(err)
+		}
+	}
+
 	products, err := b.sheetService.GetProductsByType(message.Text)
 	if err != nil {
 		log.Println(err)
 	}
 
-	head := fmt.Sprintf("รายการ %v มีตามนี้ค้าบ\n", message.Text)
+	head := fmt.Sprintf("รายการ %v \n", message.Text)
 	for _, product := range products {
 		prefix := product.GetQtySymbol()
 		text := fmt.Sprintf("%v | %v | %v\n", prefix, product.Code, product.Name)

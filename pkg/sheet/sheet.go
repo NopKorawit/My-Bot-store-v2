@@ -15,7 +15,7 @@ import (
 )
 
 type Service interface {
-	GetProducts() ([]product.Product, error)
+	GetProducts() ([][]product.Product, error)
 	GetProductsByType(productType string) ([]product.Product, error)
 	Add()
 	Sell()
@@ -40,7 +40,16 @@ func NewService(cfg *config.AppConfig) (Service, error) {
 	return &service{sheet: srv, cfg: cfg}, nil
 }
 
-func (s *service) GetProducts() ([]product.Product, error) {
+// func (s *service) GetProductslist() (*sheets.ValueRange, error) {
+// 	resp, err := s.sheet.Spreadsheets.Values.Get(s.cfg.Sheet.SpreadSheetId, "Summary!B8:G").Do()
+// 	if err != nil {
+// 		log.Println(err)
+// 		return nil, err
+// 	}
+// 	return resp,nil
+// }
+
+func (s *service) GetAllProducts() ([]product.Product, error) {
 	products := []product.Product{}
 	resp, err := s.sheet.Spreadsheets.Values.Get(s.cfg.Sheet.SpreadSheetId, "Summary!B8:G").Do()
 	if err != nil {
@@ -61,10 +70,34 @@ func (s *service) GetProducts() ([]product.Product, error) {
 	return products, nil
 }
 
-func (s *service) GetProductsByType(productType string) ([]product.Product, error) {
-	if productType == keyword.TypeAll {
-		return s.GetProducts()
+func (s *service) GetProducts() ([][]product.Product, error) {
+	var productslist [][]product.Product
+	resp, err := s.sheet.Spreadsheets.Values.Get(s.cfg.Sheet.SpreadSheetId, "Summary!B8:G").Do()
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
+	typeGroup := []string{"A", "B", "C", "D", "E"}
+	for _, typecode := range typeGroup {
+		products := []product.Product{}
+		for i, p := range resp.Values {
+			if p[0].(string)[0:1] == typecode {
+				qty, _ := strconv.Atoi(p[4].(string))
+				products = append(products, product.Product{
+					Code:     p[0].(string),
+					Name:     p[1].(string),
+					Quantity: qty,
+					Row:      i + 8,
+				})
+			}
+		}
+		productslist = append(productslist, products)
+	}
+
+	return productslist, nil
+}
+
+func (s *service) GetProductsByType(productType string) ([]product.Product, error) {
 	products := []product.Product{}
 	resp, err := s.sheet.Spreadsheets.Values.Get(s.cfg.Sheet.SpreadSheetId, "Summary!B8:G").Do()
 	if err != nil {
