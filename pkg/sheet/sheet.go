@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"store/pkg/config"
+	"store/pkg/line/keyword"
 	"store/pkg/product"
 	"strconv"
 
@@ -47,13 +48,13 @@ func (s *service) GetProducts() ([]product.Product, error) {
 		return nil, err
 	}
 	fmt.Println(resp.Values)
-	for _, p := range resp.Values {
+	for i, p := range resp.Values {
 		qty, _ := strconv.Atoi(p[4].(string))
 		products = append(products, product.Product{
 			Code:     p[0].(string),
 			Name:     p[1].(string),
 			Quantity: qty,
-			// Cell:     "",
+			Row:      i + 8,
 		})
 	}
 	fmt.Println(products)
@@ -61,7 +62,7 @@ func (s *service) GetProducts() ([]product.Product, error) {
 }
 
 func (s *service) GetProductsByType(productType string) ([]product.Product, error) {
-	if productType == "All Flavor" {
+	if productType == keyword.TypeAll {
 		return s.GetProducts()
 	}
 	products := []product.Product{}
@@ -71,13 +72,15 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 		return nil, err
 	}
 	fmt.Println(resp.Values)
-	for _, p := range resp.Values {
-		if p[0].(string)[0:1] == productType {
+	typecode := keyword.ConvertType(productType)
+	for i, p := range resp.Values {
+		if p[0].(string)[0:1] == typecode {
 			qty, _ := strconv.Atoi(p[4].(string))
 			products = append(products, product.Product{
 				Code:     p[0].(string),
 				Name:     p[1].(string),
 				Quantity: qty,
+				Row:      i + 8,
 			})
 		}
 	}

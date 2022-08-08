@@ -5,6 +5,7 @@ type Product struct {
 	Type     string
 	Name     string
 	Quantity int
+	Row      int
 }
 
 func (p Product) GetQtySymbol() string {

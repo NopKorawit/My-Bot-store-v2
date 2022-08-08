@@ -77,7 +77,7 @@ const MenuFlex = `{
 				  "gravity": "center",
 				  "action": {
 					"type": "message",
-					"text": "Relx INFINITY"
+					"text": "RELX INFINITY"
 				  },
 				  "contents": []
 				},
@@ -160,7 +160,7 @@ const MenuFlex = `{
 			  "action": {
 				"type": "message",
 				"label": "See all",
-				"text": "All Flavor"
+				"text": "ทั้งหมด"
 			  }
 			}
 		  ]

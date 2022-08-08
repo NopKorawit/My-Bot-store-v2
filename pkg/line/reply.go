@@ -52,7 +52,7 @@ func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) 
 		log.Println(err)
 	}
 
-	head := fmt.Sprintf("รายการ %v ตามนี้ค้าบ\n", message.Text)
+	head := fmt.Sprintf("รายการ %v มีตามนี้ค้าบ\n", message.Text)
 	for _, product := range products {
 		prefix := product.GetQtySymbol()
 		text := fmt.Sprintf("%v | %v | %v\n", prefix, product.Code, product.Name)
