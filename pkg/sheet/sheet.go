@@ -53,6 +53,7 @@ func (s *service) GetProducts() ([]product.Product, error) {
 			Code:     p[0].(string),
 			Name:     p[1].(string),
 			Quantity: qty,
+			// Cell:     "",
 		})
 	}
 	fmt.Println(products)
@@ -63,8 +64,25 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 	if productType == "All Flavor" {
 		return s.GetProducts()
 	}
-
-	return nil, nil
+	products := []product.Product{}
+	resp, err := s.sheet.Spreadsheets.Values.Get(s.cfg.Sheet.SpreadSheetId, "Summary!B8:G").Do()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	fmt.Println(resp.Values)
+	for _, p := range resp.Values {
+		if p[0].(string)[0:1] == productType {
+			qty, _ := strconv.Atoi(p[4].(string))
+			products = append(products, product.Product{
+				Code:     p[0].(string),
+				Name:     p[1].(string),
+				Quantity: qty,
+			})
+		}
+	}
+	fmt.Println(products)
+	return products, nil
 }
 
 func (s *service) Add() {
