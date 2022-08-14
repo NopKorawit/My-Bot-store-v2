@@ -55,7 +55,7 @@ func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) 
 		TypeGroup := []string{keyword.TypeNameA, keyword.TypeNameB, keyword.TypeNameC, keyword.TypeNameD, keyword.TypeNameE}
 		text := "รายการทั้งหมดมีดังนี้\n\n"
 		for i, products := range productslist {
-			head := fmt.Sprintf("รายการ %v มีตามนี้ค้าบ\n", TypeGroup[i])
+			head := fmt.Sprintf("%v มีตามนี้ค้าบ\n", TypeGroup[i])
 			for _, product := range products {
 				prefix := product.GetQtySymbol()
 				text := fmt.Sprintf("%v | %v | %v\n", prefix, product.Code, product.Name)
@@ -63,7 +63,8 @@ func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) 
 			}
 			text = text + head + "\n"
 		}
-		fmt.Println(text)
+		text = text + "❌ หมดแล้วค้าบ \n⚠️ เหลือ 1-2 อัน \n✅ มีมากกว่า 2 อัน"
+		// fmt.Println(text)
 		if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
 			log.Print(err)
 		}
