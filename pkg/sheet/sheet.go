@@ -104,7 +104,7 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 		log.Println(err)
 		return nil, err
 	}
-	fmt.Println(resp.Values)
+	// fmt.Println(resp.Values)
 	typecode := keyword.ConvertType(productType)
 	for i, p := range resp.Values {
 		if p[0].(string)[0:1] == typecode {
@@ -117,7 +117,12 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 			})
 		}
 	}
-	fmt.Println(products)
+	var changes = make(map[string]int)
+	changes["A1"] = 2
+	changes["A3"] = 4
+	changes["K3"] = 10
+	s.updates(changes)
+	// fmt.Println(products)
 	return products, nil
 }
 
@@ -129,6 +134,42 @@ func (s *service) Sell() {
 	s.updates(map[string]int{})
 }
 
-func (s *service) updates(map[string]int) error {
+// func (s *service) updates(change map[string]int) error {
+// 	products := []product.Product{}
+// 	resp, err := s.sheet.Spreadsheets.Values.Get(s.cfg.Sheet.SpreadSheetId, "Summary!B8:G").Do()
+// 	if err != nil {
+// 		log.Println(err)
+// 		return err
+// 	}
+// 	// fmt.Println(resp.Values)
+// 	last := (len(resp.Values) + 7)
+// 	typecode := keyword.ConvertType(productType)
+// 	for i, p := range resp.Values {
+// 		if p[0].(string)[0:1] == typecode {
+// 			qty, _ := strconv.Atoi(p[4].(string))
+// 			products = append(products, product.Product{
+// 				Code:     p[0].(string),
+// 				Name:     p[1].(string),
+// 				Quantity: qty,
+// 				Row:      i + 8,
+// 			})
+// 		}
+// 	}
+// 	fmt.Println(products)
+// 	return nil
+// }
+
+func (s *service) updates(change map[string]int) error {
+	var vr sheets.ValueRange
+	for cell, amount := range change {
+		updateVal := []interface{}{amount}
+		vr.Values = [][]interface{}{updateVal}
+		_, err := s.sheet.Spreadsheets.Values.Update(s.cfg.Sheet.SpreadSheetId, cell, &vr).ValueInputOption("RAW").Do()
+		if err != nil {
+			log.Fatalf("Unable to retrieve data from sheet. %v", err)
+		}
+		log.Printf("%v updated with value = %v", cell, vr.Values)
+
+	}
 	return nil
 }
