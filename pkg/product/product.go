@@ -8,6 +8,11 @@ type Product struct {
 	Row      int
 }
 
+type ProductUpdate struct {
+	Code     string
+	Quantity int
+}
+
 func (p Product) GetQtySymbol() string {
 	if p.Quantity < 0 {
 		return "ระบบมีปัญหา"

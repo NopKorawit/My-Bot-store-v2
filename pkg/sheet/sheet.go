@@ -2,6 +2,7 @@ package sheet
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -17,8 +18,8 @@ import (
 type Service interface {
 	GetProducts() ([][]product.Product, error)
 	GetProductsByType(productType string) ([]product.Product, error)
-	Add()
-	Sell()
+	Add(add []product.ProductUpdate) error
+	Sell(sell []product.ProductUpdate) error
 }
 
 type service struct {
@@ -126,12 +127,47 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 	return products, nil
 }
 
-func (s *service) Add() {
-	s.updates(map[string]int{})
+func (s *service) Add(add []product.ProductUpdate) error {
+	list, err := s.GetAllProducts()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	var changes = make(map[string]int)
+	// changes["A1"] = 2
+	for _, input := range add {
+		for _, product := range list {
+			if product.Code == input.Code {
+				changes[input.Code] = product.Quantity + input.Quantity
+			}
+		}
+	}
+	return s.updates(changes)
 }
 
-func (s *service) Sell() {
-	s.updates(map[string]int{})
+func (s *service) Sell(sell []product.ProductUpdate) error {
+	list, err := s.GetAllProducts()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	var changes = make(map[string]int)
+	// changes["A1"] = 2
+	for _, input := range sell {
+		for _, product := range list {
+			if product.Code == input.Code {
+				amount := product.Quantity - input.Quantity
+				if amount < 0 {
+					return errors.New("product not Enough")
+				}
+				changes[input.Code] = amount
+
+			}
+		}
+		// if changes[]
+		// return errors.New("")
+	}
+	return s.updates(changes)
 }
 
 // func (s *service) updates(change map[string]int) error {
