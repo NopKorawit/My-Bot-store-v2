@@ -1,8 +1,10 @@
 package config
 
 import (
+	"os"
+
 	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
+	// "github.com/kelseyhightower/envconfig"
 )
 
 type AppConfig struct {
@@ -20,10 +22,10 @@ type LineConfig struct {
 	LineChannelToken  string `envconfig:"LINE_CHANNEL_TOKEN" required:"true"`
 }
 
-func (cfg *AppConfig) Init() {
-	envconfig.MustProcess("", &cfg.Sheet)
-	envconfig.MustProcess("", &cfg.Line)
-}
+// func (cfg *AppConfig) Init() {
+// 	envconfig.MustProcess("", &cfg.Sheet)
+// 	envconfig.MustProcess("", &cfg.Line)
+// }
 
 func New() *AppConfig {
 	err := godotenv.Load()
@@ -32,7 +34,10 @@ func New() *AppConfig {
 	}
 
 	appCfg := AppConfig{}
-	appCfg.Init()
+	appCfg.Line.LineChannelSecret = os.Getenv("CHANNEL_SECRET")
+	appCfg.Line.LineChannelToken = os.Getenv("CHANNEL_TOKEN")
+	appCfg.Sheet.GoogleCredentialsPath = os.Getenv("GOOGLE_CREDENTIALS_PATH")
+	appCfg.Sheet.SpreadSheetId = os.Getenv("SPREAD_SHEET_ID")
 
 	return &appCfg
 }
