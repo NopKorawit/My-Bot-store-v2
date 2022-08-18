@@ -4,6 +4,8 @@ type Product struct {
 	Code     string
 	Type     string
 	Name     string
+	Buy      int
+	Sell     int
 	Quantity int
 	Row      int
 }

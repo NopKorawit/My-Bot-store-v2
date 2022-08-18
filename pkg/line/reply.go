@@ -82,7 +82,7 @@ func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) 
 		head = head + text
 	}
 
-	fmt.Println(head)
+	// fmt.Println(head)
 
 	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(head)).Do(); err != nil {
 		log.Print(err)

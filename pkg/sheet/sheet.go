@@ -18,7 +18,7 @@ import (
 type Service interface {
 	GetProducts() ([][]product.Product, error)
 	GetProductsByType(productType string) ([]product.Product, error)
-	Add(add []product.ProductUpdate) error
+	AddBack(add []product.ProductUpdate) error
 	Sell(sell []product.ProductUpdate) error
 }
 
@@ -57,17 +57,22 @@ func (s *service) GetAllProducts() ([]product.Product, error) {
 		log.Println(err)
 		return nil, err
 	}
-	fmt.Println(resp.Values)
+	// fmt.Println(resp.Values)
 	for i, p := range resp.Values {
-		qty, _ := strconv.Atoi(p[4].(string))
+		buy_int, _ := strconv.Atoi(p[2].(string))
+		sell_int, _ := strconv.Atoi(p[3].(string))
+		qty_int, _ := strconv.Atoi(p[4].(string))
+
 		products = append(products, product.Product{
 			Code:     p[0].(string),
 			Name:     p[1].(string),
-			Quantity: qty,
+			Buy:      buy_int,
+			Sell:     sell_int,
+			Quantity: qty_int,
 			Row:      i + 8,
 		})
 	}
-	fmt.Println(products)
+	// fmt.Println(products)
 	return products, nil
 }
 
@@ -118,16 +123,17 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 			})
 		}
 	}
-	var changes = make(map[string]int)
-	changes["A1"] = 2
-	changes["A3"] = 4
-	changes["K3"] = 10
-	s.updates(changes)
+
+	update := []product.ProductUpdate{
+		{Code: "B1", Quantity: 1},
+		{Code: "B5", Quantity: 3},
+	}
+	s.Sell(update)
 	// fmt.Println(products)
 	return products, nil
 }
 
-func (s *service) Add(add []product.ProductUpdate) error {
+func (s *service) AddBack(add []product.ProductUpdate) error {
 	list, err := s.GetAllProducts()
 	if err != nil {
 		log.Println(err)
@@ -136,9 +142,13 @@ func (s *service) Add(add []product.ProductUpdate) error {
 	var changes = make(map[string]int)
 	// changes["A1"] = 2
 	for _, input := range add {
+		fmt.Println(input)
+		fmt.Println("go in list")
 		for _, product := range list {
+			fmt.Println(product)
 			if product.Code == input.Code {
-				changes[input.Code] = product.Quantity + input.Quantity
+				cell := fmt.Sprintf("E%v", product.Row)
+				changes[cell] = product.Sell - input.Quantity
 			}
 		}
 	}
@@ -153,19 +163,22 @@ func (s *service) Sell(sell []product.ProductUpdate) error {
 	}
 	var changes = make(map[string]int)
 	// changes["A1"] = 2
-	for _, input := range sell {
+	for i, input := range sell {
 		for _, product := range list {
 			if product.Code == input.Code {
-				amount := product.Quantity - input.Quantity
-				if amount < 0 {
+				if product.Quantity-input.Quantity < 0 {
 					return errors.New("product not Enough")
 				}
-				changes[input.Code] = amount
+
+				cell := fmt.Sprintf("E%v", product.Row)
+				changes[cell] = product.Sell + input.Quantity
 
 			}
 		}
-		// if changes[]
-		// return errors.New("")
+		fmt.Printf("change = %v, i = %v\n", len(changes), i+1)
+		if len(changes) != i+1 {
+			return fmt.Errorf("not Found Code %v ", input.Code)
+		}
 	}
 	return s.updates(changes)
 }
