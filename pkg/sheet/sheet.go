@@ -132,6 +132,7 @@ func (s *service) AddBack(add []product.ProductUpdate) error {
 		log.Println(err)
 		return err
 	}
+	
 	var changes = make(map[string]int)
 	// changes["A1"] = 2
 	for i, input := range add {
