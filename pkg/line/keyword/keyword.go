@@ -1,6 +1,9 @@
 package keyword
 
-import "log"
+import (
+	"errors"
+	"log"
+)
 
 type Keyword string
 
@@ -12,6 +15,11 @@ const (
 	TypeNameD = "INFY 7-11"
 	TypeNameE = "INFINITE BOLD"
 	TypeAll   = "ทั้งหมด"
+)
+
+var (
+	ErrProductNotEnough = errors.New("product not enough")
+	ErrCodenotFound     = errors.New("code not found")
 )
 
 func IsMenu(keyword string) bool {

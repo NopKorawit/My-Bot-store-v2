@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"store/pkg/line/keyword"
+	"store/pkg/product"
+	"strconv"
+	"strings"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
@@ -19,6 +22,11 @@ func (b *bot) replyMessage(event *linebot.Event) {
 }
 
 func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessage) {
+	if message.Text == "Test" {
+		b.replytest()
+		return
+	}
+
 	if message.Text == keyword.Flavor {
 		b.replyMenu(event, message)
 		return
@@ -31,6 +39,14 @@ func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessag
 
 	b.replyOthers(event, message)
 
+}
+
+func (b *bot) replytest() {
+	update := []product.ProductUpdate{
+		{Code: "B1", Quantity: 1},
+		{Code: "B5", Quantity: 3},
+	}
+	b.sheetService.Sell(update)
 }
 
 func (b *bot) replyMenu(event *linebot.Event, message *linebot.TextMessage) {
@@ -90,112 +106,113 @@ func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) 
 }
 
 func (b *bot) replyOthers(event *linebot.Event, message *linebot.TextMessage) {
-	// rows := strings.Split(message.Text, "\n")
-	// //อัพเดตสินค้า
-	// if rows[0] == "อัพเดต" || rows[0] == "ตั้งค่า" {
-	// 	rows := rows[1:]
-	// 	var productsList []model.MultiProduct
-	// 	for _, row := range rows {
-	// 		split := strings.Split(row, " ")
-	// 		fmt.Println(split[1])
-	// 		amount, _ := strconv.Atoi(split[1])
-	// 		product := model.MultiProduct{
-	// 			Code:     split[0],
-	// 			Quantity: amount,
-	// 		}
-	// 		productsList = append(productsList, product)
-	// 	}
-	// 	sell, err := h.productService.UpdateMultiProducts(productsList)
-	// 	fmt.Println(err)
-	// 	if err != nil {
-	// 		if err == model.ErrProductNotEnough {
-	// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
-	// 				log.Print(err)
-	// 				return
-	// 			}
-	// 			return
-	// 		} else if err == model.ErrCodenotFound {
-	// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
-	// 				log.Print(err)
-	// 				return
-	// 			}
-	// 			return
-	// 		} else {
-	// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
-	// 				log.Print(err)
-	// 				return
-	// 			}
-	// 			return
-	// 		}
-	// 	}
-	// 	text := "รายการ\n"
-	// 	for _, Product := range sell {
-	// 		list := fmt.Sprintf("%v หัว| %v %v\n", Product.Quantity, Product.Type, Product.Name)
-	// 		text = text + list
-	// 	}
-	// 	text = text + "ถูกซื้อเรียบร้อยแล้ว"
-	// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
-	// 		log.Print(err)
-	// 		return
-	// 	}
-	// }
-	// //ขายสินค้า
-	// if rows[0] == "ขาย" || rows[0] == "เอา" || rows[0] == "buy" || rows[0] == "order" {
-	// 	rows := rows[1:]
-	// 	var productsList []model.MultiProduct
-	// 	for _, row := range rows {
-	// 		split := strings.Split(row, " ")
-	// 		fmt.Println(split[1])
-	// 		amount, _ := strconv.Atoi(split[1])
-	// 		product := model.MultiProduct{
-	// 			Code:     split[0],
-	// 			Quantity: amount,
-	// 		}
-	// 		productsList = append(productsList, product)
-	// 	}
-	// 	sell, err := h.productService.SellMultiProduct(productsList)
-	// 	fmt.Println(err)
-	// 	if err != nil {
-	// 		if err == model.ErrProductNotEnough {
-	// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
-	// 				log.Print(err)
-	// 				return
-	// 			}
-	// 			return
-	// 		} else if err == model.ErrCodenotFound {
-	// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
-	// 				log.Print(err)
-	// 				return
-	// 			}
-	// 			return
-	// 		} else {
-	// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
-	// 				log.Print(err)
-	// 				return
-	// 			}
-	// 			return
-	// 		}
-	// 	}
-	// 	text := "รายการ\n"
-	// 	for _, Product := range sell {
-	// 		list := fmt.Sprintf("%v หัว| %v %v\n", Product.Quantity, Product.Type, Product.Name)
-	// 		text = text + list
-	// 	}
-	// 	text = text + "ถูกซื้อเรียบร้อยแล้ว"
-	// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
-	// 		log.Print(err)
-	// 		return
-	// 	}
-	// } else {
-	// 	// Emoji
-	// 	sorry := linebot.NewEmoji(0, "5ac1bfd5040ab15980c9b435", "024")
-	// 	// have := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "007")
-	// 	// out := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "068")
-	// 	// few := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "025")
-	// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("$ ขออภัยครับ แต่ผมยังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือรอให้นพมาตอบคำถามดีครับ").AddEmoji(sorry)).Do(); err != nil {
-	// 		log.Print(err)
-	// 	}
-	// }
+	rows := strings.Split(message.Text, "\n")
+	//อัพเดตสินค้า
+	if rows[0] == "ขาย" || rows[0] == "sell" {
+		rows := rows[1:]
+		var productsList []product.ProductUpdate
+		for _, row := range rows {
+			split := strings.Split(row, " ")
+			fmt.Println(split[1])
+			amount, _ := strconv.Atoi(split[1])
+			product := product.ProductUpdate{
+				Code:     split[0],
+				Quantity: amount,
+			}
+			productsList = append(productsList, product)
+		}
+		err := b.sheetService.Sell(productsList)
+		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+			if err == keyword.ErrProductNotEnough {
+				if _, err = b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
+					log.Print(err)
+					return
+				}
+				return
+			} else if err == keyword.ErrCodenotFound {
+				if _, err = b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
+					log.Print(err)
+					return
+				}
+				return
+			} else {
+				if _, err = b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
+					log.Print(err)
+					return
+				}
+				return
+			}
+		}
+		text := "รายการ\n"
+		for _, Product := range productsList {
+			list := fmt.Sprintf("%v | %v\n", Product.Code, Product.Quantity)
+			text = text + list
+		}
+		text = text + "ถูกซื้อเรียบร้อยแล้ว"
+		if _, err = b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
+			log.Print(err)
+			return
+		}
+		// }
+		// //ขายสินค้า
+		// if rows[0] == "ขาย" || rows[0] == "เอา" || rows[0] == "buy" || rows[0] == "order" {
+		// 	rows := rows[1:]
+		// 	var productsList []model.MultiProduct
+		// 	for _, row := range rows {
+		// 		split := strings.Split(row, " ")
+		// 		fmt.Println(split[1])
+		// 		amount, _ := strconv.Atoi(split[1])
+		// 		product := model.MultiProduct{
+		// 			Code:     split[0],
+		// 			Quantity: amount,
+		// 		}
+		// 		productsList = append(productsList, product)
+		// 	}
+		// 	sell, err := h.productService.SellMultiProduct(productsList)
+		// 	fmt.Println(err)
+		// 	if err != nil {
+		// 		if err == model.ErrProductNotEnough {
+		// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
+		// 				log.Print(err)
+		// 				return
+		// 			}
+		// 			return
+		// 		} else if err == model.ErrCodenotFound {
+		// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
+		// 				log.Print(err)
+		// 				return
+		// 			}
+		// 			return
+		// 		} else {
+		// 			if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
+		// 				log.Print(err)
+		// 				return
+		// 			}
+		// 			return
+		// 		}
+		// 	}
+		// 	text := "รายการ\n"
+		// 	for _, Product := range sell {
+		// 		list := fmt.Sprintf("%v หัว| %v %v\n", Product.Quantity, Product.Type, Product.Name)
+		// 		text = text + list
+		// 	}
+		// 	text = text + "ถูกซื้อเรียบร้อยแล้ว"
+		// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
+		// 		log.Print(err)
+		// 		return
+		// 	}
+	} else {
+		// Emoji
+		sorry := linebot.NewEmoji(0, "5ac1bfd5040ab15980c9b435", "024")
+		// have := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "007")
+		// out := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "068")
+		// few := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "025")
+		if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("$ ขออภัยครับ แต่ผมยังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือรอให้นพมาตอบคำถามดีครับ").AddEmoji(sorry)).Do(); err != nil {
+			log.Print(err)
+		}
+	}
 }
 
 func (b *bot) replyUnknownMessage(event *linebot.Event) {

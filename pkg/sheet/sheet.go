@@ -2,7 +2,6 @@ package sheet
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -123,12 +122,6 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 			})
 		}
 	}
-
-	update := []product.ProductUpdate{
-		{Code: "B1", Quantity: 1},
-		{Code: "B5", Quantity: 3},
-	}
-	s.Sell(update)
 	// fmt.Println(products)
 	return products, nil
 }
@@ -141,7 +134,7 @@ func (s *service) AddBack(add []product.ProductUpdate) error {
 	}
 	var changes = make(map[string]int)
 	// changes["A1"] = 2
-	for _, input := range add {
+	for i, input := range add {
 		fmt.Println(input)
 		fmt.Println("go in list")
 		for _, product := range list {
@@ -150,12 +143,19 @@ func (s *service) AddBack(add []product.ProductUpdate) error {
 				cell := fmt.Sprintf("E%v", product.Row)
 				changes[cell] = product.Sell - input.Quantity
 			}
+
 		}
+		fmt.Printf("change = %v, i = %v\n", len(changes), i+1)
+		if len(changes) != i+1 {
+			return fmt.Errorf("not Found Code %v ", input.Code)
+		}
+
 	}
 	return s.updates(changes)
 }
 
 func (s *service) Sell(sell []product.ProductUpdate) error {
+	fmt.Println("IN SELL")
 	list, err := s.GetAllProducts()
 	if err != nil {
 		log.Println(err)
@@ -167,7 +167,7 @@ func (s *service) Sell(sell []product.ProductUpdate) error {
 		for _, product := range list {
 			if product.Code == input.Code {
 				if product.Quantity-input.Quantity < 0 {
-					return errors.New("product not Enough")
+					return keyword.ErrProductNotEnough
 				}
 
 				cell := fmt.Sprintf("E%v", product.Row)
@@ -177,7 +177,7 @@ func (s *service) Sell(sell []product.ProductUpdate) error {
 		}
 		fmt.Printf("change = %v, i = %v\n", len(changes), i+1)
 		if len(changes) != i+1 {
-			return fmt.Errorf("not Found Code %v ", input.Code)
+			return keyword.ErrCodenotFound
 		}
 	}
 	return s.updates(changes)
