@@ -1,1 +1,1 @@
-web: bin/cmd/linebot
+web: bin/store
