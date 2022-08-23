@@ -17,8 +17,8 @@ import (
 type Service interface {
 	GetProducts() ([][]product.Product, error)
 	GetProductsByType(productType string) ([]product.Product, error)
-	AddBack(add []product.ProductUpdate) error
-	Sell(sell []product.ProductUpdate) error
+	AddBack(add []product.Product) error
+	Sell(sell []product.Product) error
 }
 
 type service struct {
@@ -31,7 +31,7 @@ func NewService(cfg *config.AppConfig) (Service, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	// find :=sheets.FindReplaceRequest()
 	srv, err := sheets.NewService(context.Background(), option.WithCredentialsJSON(b))
 	if err != nil {
 		return nil, err
@@ -126,13 +126,13 @@ func (s *service) GetProductsByType(productType string) ([]product.Product, erro
 	return products, nil
 }
 
-func (s *service) AddBack(add []product.ProductUpdate) error {
+func (s *service) AddBack(add []product.Product) error {
 	list, err := s.GetAllProducts()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	
+
 	var changes = make(map[string]int)
 	// changes["A1"] = 2
 	for i, input := range add {
@@ -155,8 +155,8 @@ func (s *service) AddBack(add []product.ProductUpdate) error {
 	return s.updates(changes)
 }
 
-func (s *service) Sell(sell []product.ProductUpdate) error {
-	fmt.Println("IN SELL")
+func (s *service) Sell(sell []product.Product) error {
+	fmt.Println("IN SELL PROCESS")
 	list, err := s.GetAllProducts()
 	if err != nil {
 		log.Println(err)
@@ -221,5 +221,10 @@ func (s *service) updates(change map[string]int) error {
 		log.Printf("%v updated with value = %v", cell, vr.Values)
 
 	}
+	return nil
+}
+
+func (s *service) Transaction(change map[string]int) error {
+	// s.sheet.Spreadsheets.BatchUpdate(s.cfg.Sheet.SpreadSheetId,)
 	return nil
 }
