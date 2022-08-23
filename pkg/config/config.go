@@ -1,6 +1,9 @@
 package config
 
 import (
+	"log"
+	"os"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -31,8 +34,28 @@ func New() *AppConfig {
 		panic(err)
 	}
 
-	appCfg := AppConfig{}
-	appCfg.Init()
-
+	appCfg := AppConfig{
+		Sheet: GoogleSheetConfig{
+			GoogleCredentialsPath: os.Getenv("GOOGLE_CREDENTIALS_PATH"),
+			SpreadSheetId:         os.Getenv("SPREAD_SHEET_ID"),
+		},
+		Line: LineConfig{
+			LineChannelSecret: os.Getenv("LINE_CHANNEL_SECRET"),
+			LineChannelToken:  os.Getenv("LINE_CHANNEL_TOKEN"),
+		},
+	}
+	log.Println(appCfg)
 	return &appCfg
 }
+
+// func New() *AppConfig {
+// 	err := godotenv.Load()
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	appCfg := AppConfig{}
+// 	appCfg.Init()
+
+// 	return &appCfg
+// }

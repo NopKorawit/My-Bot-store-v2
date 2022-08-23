@@ -12,7 +12,7 @@ import (
 )
 
 func (b *bot) replyMessage(event *linebot.Event) {
-	fmt.Println(event.ReplyToken)
+	fmt.Printf("reply roken is: %v", event.ReplyToken)
 	switch message := event.Message.(type) {
 	case *linebot.TextMessage:
 		b.replyTextMessage(event, message)
@@ -50,7 +50,7 @@ func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessag
 }
 
 func (b *bot) replytest() {
-	update := []product.ProductUpdate{
+	update := []product.Product{
 		{Code: "E1", Quantity: 1},
 		{Code: "E5", Quantity: 3},
 	}
@@ -115,12 +115,12 @@ func (b *bot) replyProducts(event *linebot.Event, message *linebot.TextMessage) 
 
 func (b *bot) replySell(event *linebot.Event, rows []string) {
 	rows = rows[1:]
-	var productsList []product.ProductUpdate
+	var productsList []product.Product
 	for _, row := range rows {
 		split := strings.Split(row, " ")
 		fmt.Println(split[1])
 		amount, _ := strconv.Atoi(split[1])
-		product := product.ProductUpdate{
+		product := product.Product{
 			Code:     split[0],
 			Quantity: amount,
 		}
@@ -164,12 +164,12 @@ func (b *bot) replySell(event *linebot.Event, rows []string) {
 
 func (b *bot) replyAddBack(event *linebot.Event, rows []string) {
 	rows = rows[1:]
-	var productsList []product.ProductUpdate
+	var productsList []product.Product
 	for _, row := range rows {
 		split := strings.Split(row, " ")
 		fmt.Println(split[1])
 		amount, _ := strconv.Atoi(split[1])
-		product := product.ProductUpdate{
+		product := product.Product{
 			Code:     split[0],
 			Quantity: amount,
 		}
