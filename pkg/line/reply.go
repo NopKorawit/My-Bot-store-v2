@@ -37,8 +37,8 @@ func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessag
 		return
 	}
 
-	if message.Text == keyword.Promptpay || message.Text == "พร้อมเพย์" {
-		b.replyBankAccount(event, message)
+	if message.Text == keyword.Help || message.Text == "ลืม" || message.Text == "help"|| message.Text == "" {
+		b.replyHelp(event, message)
 		return
 	}
 
@@ -61,13 +61,22 @@ func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessag
 		b.replyAddBack(event, rows)
 	}
 	//สร้าง qr
-	if rows[0] == "pp" || rows[0] == "qr" || rows[0] == "พร้อมเพย์" {
+	if rows[0] == keyword.Promptpay ||rows[0] == "pp" || rows[0] == "qr" || rows[0] == "พร้อมเพย์" {
 		if len(rows) == 1 {
 			b.replyPromptpay(event, "")
 		} else {
 			b.replyPromptpay(event, rows[1])
 		}
 	}
+	split := strings.Split(message.Text, " ")
+	if split[0] == keyword.Promptpay || split[0] == "pp" || split[0] == "qr" || split[0] == "พร้อมเพย์"{
+		if len(split) == 1 {
+			b.replyPromptpay(event, "")
+		} else {
+			b.replyPromptpay(event, split[1])
+		}
+	}
+
 	b.replyOthers(event, message)
 
 }
@@ -265,6 +274,25 @@ func (b *bot) replyBankAccount(event *linebot.Event, message *linebot.TextMessag
 	นายกรวิชญ์ วาสนารุ่งเรืองสุข
 	ขอบคุณที่ใช้บริการค้าบ💕
 	`)).Do(); err != nil {
+		log.Print(err)
+	}
+}
+
+func (b *bot) replyHelp(event *linebot.Event, message *linebot.TextMessage) {
+	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(
+		`คำสั่งทั้งหมด
+		-------
+		ขาย
+		A1 1
+		A2 5
+		-------
+		ย้อนกลับ
+		A1 1
+		-------
+		pp
+		100
+		-------
+		`)).Do(); err != nil {
 		log.Print(err)
 	}
 }

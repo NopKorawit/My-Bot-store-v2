@@ -15,9 +15,10 @@ const (
 	TypeNameD = "INFY 7-11"
 	TypeNameE = "INFINITE BOLD"
 	TypeAll   = "ทั้งหมด"
-	Story = "คำขาย"
-	Bank = "บัญชี"
+	Story     = "คำขาย"
+	Bank      = "บัญชี"
 	Promptpay = "Promptpay"
+	Help      = "Help"
 )
 
 var (
