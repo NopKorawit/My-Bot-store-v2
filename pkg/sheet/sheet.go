@@ -82,7 +82,7 @@ func (s *service) GetProducts() ([][]product.Product, error) {
 		log.Println(err)
 		return nil, err
 	}
-	typeGroup := []string{"A", "B", "C", "E"}
+	typeGroup := []string{"A", "B", "C"}
 	for _, typecode := range typeGroup {
 		products := []product.Product{}
 		for i, p := range resp.Values {
