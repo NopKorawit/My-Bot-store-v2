@@ -41,7 +41,7 @@ func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessag
 		b.replyBankAccount(event, message)
 		return
 	}
-	
+
 	if message.Text == keyword.Story {
 		b.replyStory(event, message)
 		return
@@ -60,11 +60,15 @@ func (b *bot) replyTextMessage(event *linebot.Event, message *linebot.TextMessag
 	if rows[0] == "rollback" || rows[0] == "addback" || rows[0] == "ย้อนกลับ" || rows[0] == "ขายผิด" {
 		b.replyAddBack(event, rows)
 	}
-	// //สร้าง qr
-	// if rows[0] == "pp" || rows[0] == "qr" || rows[0] == "พร้อมเพย์" {
-	// 	b.replyPromptpay(event, rows)
-	// }
-	// b.replyOthers(event, message)
+	//สร้าง qr
+	if rows[0] == "pp" || rows[0] == "qr" || rows[0] == "พร้อมเพย์" {
+		if len(rows) == 1 {
+			b.replyPromptpay(event, "")
+		} else {
+			b.replyPromptpay(event, rows[1])
+		}
+	}
+	b.replyOthers(event, message)
 
 }
 
@@ -244,7 +248,7 @@ func (b *bot) replyOthers(event *linebot.Event, message *linebot.TextMessage) {
 
 func (b *bot) replyStory(event *linebot.Event, message *linebot.TextMessage) {
 	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(
-	`เปิดร้านค้าบ
+		`เปิดร้านค้าบ
 	หัวละ 125
 	3หัว+ หัวละ 120
 	3หัวขึ้นไป บริเวณม.ส่งฟรี ค้าบ
@@ -254,32 +258,24 @@ func (b *bot) replyStory(event *linebot.Event, message *linebot.TextMessage) {
 }
 
 func (b *bot) replyBankAccount(event *linebot.Event, message *linebot.TextMessage) {
-	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(`
+	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(
+		`⭐️โอนมาได้ที่บชนี้เลยค้าบ⭐️
 	9862461403
 	กรุงไทย
 	นายกรวิชญ์ วาสนารุ่งเรืองสุข
+	ขอบคุณที่ใช้บริการค้าบ💕
 	`)).Do(); err != nil {
 		log.Print(err)
 	}
 }
 
-func (b *bot) replyPromptpay(event *linebot.Event, message *linebot.TextMessage) {
-	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(`
-	9862461403
-	กรุงไทย
-	นายกรวิชญ์ วาสนารุ่งเรืองสุข
-	`)).Do(); err != nil {
-		log.Print(err)
-	}
-	split := strings.Split(message.Text, " ")
-		fmt.Println(split[1])
-		amount, _ := strconv.Atoi(split[1])
-	QRcode := fmt.Sprintf("https://promptpay.io/1900101293500/%v.png",amount)
-	if _, err := b.client.ReplyMessage(event.ReplyToken,linebot.NewImageMessage(QRcode,QRcode)).Do(); err != nil {
+func (b *bot) replyPromptpay(event *linebot.Event, amount string) {
+	QRcode := fmt.Sprintf("https://promptpay.io/1900101293500/%v", amount)
+	log.Print(QRcode)
+	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewImageMessage(QRcode, QRcode)).Do(); err != nil {
 		log.Print(err)
 	}
 }
-
 
 func (b *bot) replyUnknownMessage(event *linebot.Event) {
 	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("Unknown")).Do(); err != nil {
